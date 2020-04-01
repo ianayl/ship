@@ -3,7 +3,7 @@
 Pish is an interactive shell that strives to be friendly, _somewhat_ fast and
 POSIX compliant for once.
 
-# Massive Disclaimer:
+## Massive Disclaimer:
 
 This shell is in it's _extreme infant stages_, and I am a beginner to
 programming and beginner to C, so bare with me here if I make cringy mistakes. 
