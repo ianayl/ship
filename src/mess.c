@@ -1,3 +1,13 @@
+/*
+ * Whoops.
+ * I'm an idiot.
+ * This is a horrible way to start the shell.
+ * I need to write a lexer first, and then a parser
+ *
+ * Guess I'll keep this for reference. This'll come
+ * useful when I'm actually writing interactive stuff
+ * I suppose.
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <termios.h>
@@ -30,34 +40,46 @@ void clean_exit ()
                 tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_state);
 }
 
-void parse_input ()
+char** parse_interactive ()
 {
+        /* status of the parser */
+        int is_reading = 1;
+
         /* allocates memory for the input buffer */
         int bufsize = 1024;
-        char *buffer = malloc(sizeof(char) * bufsize);
+        char* buffer = malloc(sizeof(char) * bufsize);
         if (!buffer) {
                 fprintf(stderr,
                         "pish: Could not allocate memory for input buffer.\n");
                 exit(-1);
         }
 
-        /* reads 1 char and adds to buffer */
+        /* read setup */
         char c;
         int pos = 0;
-        int status = 1;
 
-        while (status) {
+        /* print prompt once at the beginning */
+        printf("%% ");
+
+        /* actual parsing part TODO clean this up */
+        while (is_reading) {
                 c = fgetc(stdin);
-                if (c == 127) { /* Backspace */
+                if (c == 127) { 
+                        /* Backspace */
                         if (pos > 0) {
                                 pos--;
                                 buffer[pos] = 0;
                         }
+                } else if (c == '\n') {
+                        /* new line, return results */
+                        printf("\n%s", buffer);
+                        is_reading = 0;
+                        continue;
                 } else if (c == EOF ||
-                    c == '\n' ||
-                    c == 4) /* EOF apparently, the variable no work */
+                           c == 4) 
                 {
-                        status = 0;
+                        /* EOF apparently's 4, the variable no work */
+                        is_reading = 0;
                         continue;
                 } else {
                         buffer[pos] = c;
@@ -66,7 +88,8 @@ void parse_input ()
 
                 if (pos >= bufsize) {
                         bufsize += 1024;
-                        buffer = realloc(buffer, bufsize);
+                        buffer = realloc(buffer, sizeof(char) * 1024);
+                        /* ^ wrong */
                         if (!buffer) {
                                 fprintf(stderr,
                                         "pish: Could not allocate memory for \
@@ -75,13 +98,19 @@ void parse_input ()
                         }
                 }
 
-                printf("%s\t\t\tchar:%d pos:%d\n", buffer, c, pos);
+                printf("\r\033[2K%% %s\0337\t\t(char:%d pos%d)\0338", buffer, c, pos);
+                fflush(stdout);
         };
+
 }
 
 void repl ()
 {
-        parse_input();
+        /* TODO implement reading from a file... that's kind of neccesary */
+        char* command;
+        parse_interactive(command);
+        /* cleanup */
+        free(command);
 }
 
 int main ()
