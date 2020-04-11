@@ -27,8 +27,6 @@ int lexer (char* input, char*** output)
                         /* if out of space */
                         if (token_len >= token_maxsize) {
                                 token_maxsize += LEXER_TOKEN_UNIT_SIZE;
-                                /* TODO might need to watch for realloc and a 
-                                 * new pointer position here */
                                 res[token_id] = realloc(res[token_id],
                                                         token_maxsize * sizeof(char));
                         }
@@ -57,7 +55,7 @@ int main (int argc, char** argv)
                 printf("%s$\n", res[i]);
         /* 
          * note to self: reminder to only lex upon these characters:
-         * - literal space
+         * - literal space - CHECK
          * - enter
          * - "
          * - '
