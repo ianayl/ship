@@ -5,10 +5,12 @@ POSIX compliant for once.
 
 ## Massive Disclaimer:
 
-This shell is in it's _extreme infant stages_, and I am a beginner to
-programming and beginner to C, so bare with me here if I make cringy mistakes. 
-A bit of an ambitious project, but I'm hoping to bust my legs into C with this
-project. 
+This shell is what I would call a "research" project. It's not "research" as 
+in breaking new grounds, its honestly just for me to learn how to make 
+languages and such. It's also in it's _extreme infant stages_, and I am a 
+beginner to programming and beginner to C, so bare with me here if I make 
+cringy mistakes. A bit of an ambitious project, but I'm hoping to bust my 
+legs into C with this Oproject. 
 
 Bit of a bad idea? Maybe, but whatever, I'm already here, so I might as well 
 continue it.
