@@ -4,7 +4,7 @@ CFLAGS = -Wall
 FILES = src/lexer.c
 
 build: $(FILES)
-	$(CC) $(CFLAGS) -o pish $<
+	$(CC) $(CFLAGS) -o ship $<
 
 clean:
-	rm ./yafm
+	rm ship

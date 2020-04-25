@@ -50,7 +50,7 @@ char** parse_interactive ()
         char* buffer = malloc(sizeof(char) * bufsize);
         if (!buffer) {
                 fprintf(stderr,
-                        "pish: Could not allocate memory for input buffer.\n");
+                        "ship: Could not allocate memory for input buffer.\n");
                 exit(-1);
         }
 
@@ -92,7 +92,7 @@ char** parse_interactive ()
                         /* ^ wrong */
                         if (!buffer) {
                                 fprintf(stderr,
-                                        "pish: Could not allocate memory for \
+                                        "ship: Could not allocate memory for \
                                         input buffer.\n");
                                 exit(-1);
                         }
