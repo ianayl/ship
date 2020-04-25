@@ -1,6 +1,6 @@
-# Pish - POSIX Interactive Shell
+# Ship - SHell, but Interactive aand Posix compliant this time.
 
-Pish is an interactive shell that strives to be friendly, _somewhat_ fast and
+Ship is an interactive shell that strives to be friendly, _somewhat_ fast and
 POSIX compliant for once.
 
 ## Massive Disclaimer:
@@ -22,7 +22,15 @@ Take example:
 - Fish
 - Elvish
 
+I don't quite get it. I quite like having my interactive shell be POSIX 
+compliant. I know POSIX compliancy doesnt make for easy to use syntax, but it
+does make scripting POSIX stuff a lot easier in my opinion because you can test
+things by throwing it in your shell. Plus, POSIX compliancy also promises that
+your shell will work with practically any shell script, thus explaining why I 
+want a POSIX interactive shell.
+
 Now, Zsh does exist, but it doesn't have the nice things fish has without 
 plugins or OMZ. The plugins don't quite hit the same spot that the features
 built into Fish however though, and while OMZ is nice, it's _really slow_ 
-unfortunately.
+unfortunately. Hence I am going to learn how to program a shell just so I
+can have a comfy shell experience.
