@@ -1,4 +1,4 @@
-# Ship - SHell, but Interactive aand Posix compliant this time.
+# Ship - SHell, but Interactive and Posix compliant this time.
 
 Ship is an interactive shell that strives to be friendly, _somewhat_ fast and
 POSIX compliant for once.
