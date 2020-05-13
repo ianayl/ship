@@ -5,42 +5,42 @@
 #define LEXER_TOKEN_UNIT_SIZE 7
 /* TODO optimize this number */
 
-/*
- * lexes the input string and replaces the output variable
- * with an array of strings of each individual token on its
- * own. Then returns the number of tokens lexed. self reminder
- * to free the memory after you're done lol
+/* 
+ * @param input The string to lex
+ * @param output The array of strings to fill with tokens
+ * @return The number of tokens
+ * Lexes a string into tokens and places the tokens in an array
  */
 int lexer (char* input, char*** output)
 {
-        /* make temp. list to fill */
         char** res = malloc(sizeof(char *)); /* space for one token */
-        int token_id = 0; /* which token code is currently on */
-        int token_maxsize = 0; /* how much memory the token has right now */
-        int token_len = 0; /* actual index of the string the token is at */
+        int token_num = 0; /* the token currently being used */
+        int token_maxsize = 0; /* how much space token has */
+        int token_len = 0; /* how long token is */
 
-        /* for every char in input */
         for (int i = 0; i<strlen(input); i++) {
-                if (input[i] == ' ' ||
-                    input[i] == '\n') 
+                if (input[i] == '#') {
+                        /* comment */
+                        *output = res;
+                        return token_num;
+                } if (input[i] == ' ' ||
+                      input[i] == '\n') 
                 {
-                        /* handle new token */
-                        /* empty token signifies end */
-                        token_id++;
-                        res = realloc(res, (token_id + 1) * sizeof(char *));
+                        /* new token */
+                        token_num++;
+                        res = realloc(res, (token_num + 1) * sizeof(char *));
                         token_maxsize = 0;
                         token_len = 0;
 
                 } else {
-                        /* if out of space */
+                        /* out of space */
                         if (token_len >= token_maxsize) {
                                 token_maxsize += LEXER_TOKEN_UNIT_SIZE;
-                                res[token_id] = realloc(res[token_id],
+                                res[token_num] = realloc(res[token_num],
                                                         token_maxsize
                                                         * sizeof(char));
                         }
-                        /* fill token with char from input */
-                        res[token_id][token_len] = input[i];
+                        res[token_num][token_len] = input[i];
                         token_len++;
                 }
         }
@@ -48,10 +48,10 @@ int lexer (char* input, char*** output)
         /* replaces the variable provided with result */
         *output = res;
         /* returns length */
-        return token_id + 1;
+        return token_num + 1;
 }
 
-/* For debug only */
+/* For debug only, delete when done */
 int main (int argc, char** argv)
 {
         if (argc < 2) {
@@ -61,17 +61,8 @@ int main (int argc, char** argv)
 
         char** res;
         int len = lexer(argv[1], &res);
+        printf("%d\n", len);
         for (int i = 0; i<len; i++)
                 printf("%s$\n", res[i]);
         free(res);
-
-        /* 
-         * note to self: reminder to only lex upon these characters:
-         * - literal space - CHECK
-         * - enter
-         * - "
-         * - '
-         * - ()
-         * - probably more
-         */
 }
