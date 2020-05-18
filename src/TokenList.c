@@ -1,18 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-typedef struct TKL_node {
-        /* struct TKL_node *prev; */
-        struct TKL_node *next;
-        char* token;
-} TKL_node;
-
-typedef struct {
-        TKL_node *head;
-        TKL_node *tail;
-        int len;
-} TokenList;
+#include "TokenList.h"
 
 TokenList TKL_newList () 
 {
@@ -61,6 +47,10 @@ void TKL_wipe (TokenList *target)
         target->len = 0;
 }
 
+/*
+ * for testing purposes only 
+ * TODO delete when done
+ */
 int main ()
 {
         TokenList lol = TKL_newList();
