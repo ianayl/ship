@@ -7,6 +7,7 @@
 
 typedef struct TKL_node {
         /* struct TKL_node *prev; */
+
         struct TKL_node *next;
         char* token;
 } TKL_node;
@@ -25,5 +26,8 @@ void TKL_append (TokenList *target, char* val);
 void TKL_wipe_helper (TKL_node *head);
 
 void TKL_wipe (TokenList *target);
+
+/* might not even be needed, consider deleting */
+TKL_node* TKL_get (TokenList *target, int index);
 
 #endif

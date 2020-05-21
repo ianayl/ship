@@ -2,13 +2,13 @@
 
 TokenList TKL_newList () 
 {
-        TokenList tmp;
+        TokenList res;
 
-        tmp.head = 0;
-        tmp.tail = 0;
-        tmp.len = 0;
+        res.head = 0;
+        res.tail = 0;
+        res.len = 0;
 
-        return tmp;
+        return res;
 }
 
 void TKL_append (TokenList *target, char* val) 
@@ -47,10 +47,16 @@ void TKL_wipe (TokenList *target)
         target->len = 0;
 }
 
-/*
- * for testing purposes only 
- * TODO delete when done
- */
+/* Do I even use this at all? Consider deleting this */
+TKL_node* TKL_get (TokenList *target, int index)
+{
+        TKL_node *res = target->head;
+        for (int i = 0; i < index; i++)
+                res = res->next;
+        return res;
+}
+
+/* For debug only, delete when done */
 int main ()
 {
         TokenList lol = TKL_newList();
@@ -62,6 +68,10 @@ int main ()
         printf("%s\n", lol.head->token);
         printf("%s\n", lol.tail->token);
         printf("%d\n", lol.len);
+
+        TKL_node *current = TKL_get(&lol, 1);
+
+        printf("%s\n", current->token);
 
         TKL_wipe(&lol);
 }
