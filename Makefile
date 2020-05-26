@@ -1,10 +1,10 @@
 CC = gcc
-CFLAGS = -Wall
+CFLAGS = -Wall -g
 
-FILES = src/lexer.c
+FILES = src/parser/lexer.c src/parser/TokenArr.c src/parser/TokenArr.h
 
 build: $(FILES)
-	$(CC) $(CFLAGS) -o ship $<
+	$(CC) $(CFLAGS) -o ship $^
 
 clean:
 	rm ship

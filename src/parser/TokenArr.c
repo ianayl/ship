@@ -2,23 +2,11 @@
 #include <stdio.h>
 #include <string.h>
 
-typedef struct Token
-{
-        char* val;
-        /* TODO add type enum */
+#include "TokenArr.h"
 
-} Token;
-
-/* A queue of tokens */
-typedef struct TokenQueue
+TokenArr TokenArr_new ()
 {
-        Token* queue;
-        unsigned len;
-} TokenQueue;
-
-TokenQueue TokenQueue_new ()
-{
-        TokenQueue res;
+        TokenArr res;
 
         res.len = 0;
         res.queue = 0;
@@ -26,7 +14,7 @@ TokenQueue TokenQueue_new ()
         return res;
 }
 
-void TokenQueue_push (TokenQueue *dest, char* v)
+void TokenArr_push (TokenArr *dest, char* v)
 {
         /* TODO reminder to accomidate for types */
         if (dest->len == 0)
@@ -41,28 +29,31 @@ void TokenQueue_push (TokenQueue *dest, char* v)
         dest->len ++;
 }
 
-char* TokenQueue_getVal (TokenQueue *dest, unsigned index)
+char* TokenArr_getVal (TokenArr *dest, unsigned index)
 {
         if (index >= dest->len || index < 0)
                 return 0;
         return dest->queue[index].val;
 };
 
-void TokenQueue_destroy (TokenQueue *dest)
+void TokenArr_destroy (TokenArr *dest)
 {
         for (int i = (dest->len - 1); i >= 0; i--)
                 free(dest->queue[i].val);
         free(dest->queue);
 }
 
-/* For debug only, remove when done */
-int main ()
-{
-        TokenQueue test = TokenQueue_new();
-        TokenQueue_push(&test, "abc");
-        TokenQueue_push(&test, "def");
-        TokenQueue_push(&test, "ghi");
-        for (int i = 0; i<test.len; i++)
-                printf("%s\n", TokenQueue_getVal(&test, i));
-        TokenQueue_destroy(&test);
-}
+/*
+ * Test code lol, pls ignore 
+ *
+ * int main ()
+ * {
+ *         TokenArr test = TokenArr_new();
+ *         TokenArr_push(&test, "abc");
+ *         TokenArr_push(&test, "def");
+ *         TokenArr_push(&test, "ghi");
+ *         for (int i = 0; i<test.len; i++)
+ *                 printf("%s\n", TokenArr_getVal(&test, i));
+ *         TokenArr_destroy(&test);
+ * }
+ */
