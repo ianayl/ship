@@ -34,3 +34,7 @@ plugins or OMZ. The plugins don't quite hit the same spot that the features
 built into Fish however though, and while OMZ is nice, it's _really slow_ 
 unfortunately. Hence I am going to learn how to program a shell just so I
 can have a comfy shell experience.
+
+### Small Sidenote
+
+Huh? Github, where did I use C++ anywhere?
