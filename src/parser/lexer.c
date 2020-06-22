@@ -13,17 +13,22 @@ void lexer (struct token_arr *dest, char* input)
 	char* buf = calloc(1, 1);
 	unsigned buf_len = 1;
 
-	unsigned short in_quotes = 0;
 	/*
 	 * in_quotes has values of either:
 	 * - 0 for not in quotes
 	 * - the ascii value of the type of quote the lexer is 
 	 *   currently in
 	 */
+	unsigned short in_quotes = 0;
 
+	/*
+	 * checks left TODO:
+	 * 2, 3, 4 (wip), 5, 6
+	 */
 	for (unsigned i = 0; !str_end; i++) {
 		printf("%c buf:%s\n", input[i], buf);
 
+		/* POSIX standard token recognition check 1 */
 		if (input[i] == '\0' ||
 		    input[i] == '\n') {
 
@@ -37,6 +42,8 @@ void lexer (struct token_arr *dest, char* input)
 			str_end = 1;
 			break;
 
+		/* POSIX standard token recognition check 4 */
+		/* TODO implement backslash, escaping, etc  */
 		} else if (input[i] == '\"' || input[i] == '\'') {
 
 			if (in_quotes == input[i]) {
@@ -80,6 +87,99 @@ void lexer (struct token_arr *dest, char* input)
 			buf[buf_len-1] = '\0';
 			buf[buf_len-2] = input[i];
 
+		/* POSIX standard token recognition check 6 */
+		/* TODO fill in each operator lol */
+		} else if (input[i] == '&') {
+			
+			/* &&, AND_IF */
+			if (input[i+1] == '&') {
+
+			/* &, AMPERSAND */
+			/* 
+			 * the name 'AMPERSAND' probably isn't convention, but 
+			 * the only convention I could find for the name of '&'
+			 * was literally just '&', and I can't have '&' as the 
+			 * name of something in an enum, so 'AMPERSAND' will
+			 * have to do.
+			 */
+			} else {
+
+			}
+
+		} else if (input[i] == '|') {
+
+			/* ||, AND_OR */
+			if (input[i+1] == '|') {
+
+			/* |, PIPE */
+			/* 
+			 * the name 'PIPE' probably isnt convention either, but
+			 * same reason as 'AMPERSAND', there's not much I can 
+			 * do franky... thank you POSIX standard, very cool.
+			 */
+			} else {
+
+			}
+
+		} else if (input[i] == ';') {
+
+			/* ;;, DSEMI */
+			if (input[i+1] == ';') {
+
+			/* ;, SEMICOLON */
+			/*
+			 * again... see above comments for the rationale of
+			 * 'SEMICOLON' as the name...
+			 */
+			} else {
+
+			}
+
+		} else if (input[i] == '<') {
+
+			if (input[i+1] == '<') {
+				
+				/* <<-, DLESSDASH */
+				if (input[i+2] == '-') {
+
+				/* <<, DLESS */
+				} else {
+
+				}
+
+			/* <&, LESSAND */
+			} else if (input[i+1] == '&') {
+
+			/* <>, LESSGREAT */
+			} else if (input[i+1] == '>') {
+
+			/* <, LESS */
+			/* 
+			 * same rationale as above comments, i just hope this 
+			 * name isnt confusing. 'LESSTHAN' is not better either
+			 */
+			} else {
+
+			}
+
+		} else if (input[i] == '<') {
+
+			/* >|, CLOBBER */ 
+			if (input[i+1] == '|') {
+
+			/* >>, DGREAT */ 
+			} else if (input[i+1] == '>') {
+
+			/* >&, GREATAND */ 
+			} else if (input[i+1] == '&') {
+
+			/* >, GREAT */ 
+			/* see comments above */
+			} else {
+
+			}
+
+		/* POSIX standard token recognition check 7 */
 		} else if (input[i] == ' ' ||
 			   input[i] == '\t' ||
 			   input[i] == '\n' ||
@@ -94,6 +194,7 @@ void lexer (struct token_arr *dest, char* input)
 				buf_len = 1;
 			}
 
+		/* POSIX standard token recognition check 9 */
 		} else if (input[i] == '#') {
 
 			if (buf_len > 1)
@@ -101,6 +202,7 @@ void lexer (struct token_arr *dest, char* input)
 			str_end = 1;
 			break;
 			
+		/* POSIX standard token recognition check 8 */
 		} else {
 			/* 
 			 * I don't think expanding size by 1
