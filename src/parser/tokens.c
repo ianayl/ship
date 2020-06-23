@@ -4,43 +4,45 @@
 
 #include "tokens.h"
 
-struct token_arr ta_new ()
+struct tk_arr ta_new ()
 {
-	struct token_arr res;
+	struct tk_arr res;
 
 	res.len = 0;
-	res.queue = 0;
+	res.arr = 0;
 
 	return res;
 }
 
-void ta_push (struct token_arr *dest, char* v)
+void ta_push (struct tk_arr *dest, char* v) /* , enum tk_type t) */
 {
-	/* TODO consider accomidating types*/
 	if (dest->len == 0)
-		dest->queue = malloc(sizeof(struct token));
+		dest->arr = malloc(sizeof(struct token));
 	else
-		dest->queue = realloc(dest->queue, (dest->len + 1)
+		dest->arr = realloc(dest->arr, (dest->len + 1)
 					  * sizeof(struct token));
-	/* assuming sizeof(char) = 0 */
-	dest->queue[dest->len].val = malloc(strlen(v) + 1);
-	strcpy(dest->queue[dest->len].val, v);
+	
+	/* assuming sizeof(char) = 1 */
+	dest->arr[dest->len].val = malloc(strlen(v) + 1);
+	strcpy(dest->arr[dest->len].val, v);
+	/* TODO add types */
+	/* dest->arr[dest->len].type = t; */
 
 	dest->len ++;
 }
 
-char* ta_get_val (struct token_arr *dest, unsigned index)
+char* ta_get_val (struct tk_arr *dest, unsigned index)
 {
 	if (index >= dest->len || index < 0)
 		return 0;
-	return dest->queue[index].val;
+	return dest->arr[index].val;
 };
 
-void ta_destroy (struct token_arr *dest)
+void ta_destroy (struct tk_arr *dest)
 {
 	for (int i = (dest->len - 1); i >= 0; i--)
-		free(dest->queue[i].val);
-	free(dest->queue);
+		free(dest->arr[i].val);
+	free(dest->arr);
 }
 
 /* 
@@ -48,7 +50,7 @@ void ta_destroy (struct token_arr *dest)
  *
  * int main ()
  * {
- *         struct token_arr test = ta_new();
+ *         struct tk_arr test = ta_new();
  *         ta_push(&test, "abc");
  *         ta_push(&test, "def");
  *         ta_push(&test, "ghi");

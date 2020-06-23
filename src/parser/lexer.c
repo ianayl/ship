@@ -7,7 +7,7 @@
 /* 
  * Lexes a string into tokens and places them into a TokenArr
  */
-void lexer (struct token_arr *dest, char* input)
+void lexer (struct tk_arr *dest, char* input)
 {
 	unsigned short str_end = 0;
 	char* buf = calloc(1, 1);
@@ -23,7 +23,7 @@ void lexer (struct token_arr *dest, char* input)
 
 	/*
 	 * checks left TODO:
-	 * 2, 3, 4 (wip), 5, 6
+	 * 2, 3, 4 (wip), 5, 6 (wip)
 	 */
 	for (unsigned i = 0; !str_end; i++) {
 		printf("%c buf:%s\n", input[i], buf);
@@ -227,7 +227,7 @@ int main (int argc, char** argv)
 		return 1;
 	}
 
-	struct token_arr tokens = ta_new();
+	struct tk_arr tokens = ta_new();
 	lexer(&tokens, argv[1]);
 	for (int i = 0; i<tokens.len; i++) {
 		printf("%s$\n", ta_get_val(&tokens, i));
