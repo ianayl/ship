@@ -6,6 +6,19 @@
 enum tk_type
 {
 
+    NULL_TYPE, /* This is so that a type of 0 represents null */
+
+    TOKEN, /* Generic token type, before distinguishing token types */
+
+    /* The following are specified token types */
+    WORD,
+    ASSIGNMENT_WORD,
+    NAME,
+
+    /* Misc. types */
+    NEWLINE,
+    IO_NUMBER,
+
     /* Operators */
     OP_ANDIF, /* &&, AND logic */
     OP_AMPERSAND, /* &, asynchronous execution */
@@ -43,9 +56,13 @@ struct tk_arr
 
 struct tk_arr ta_new ();
 
-void ta_push (struct tk_arr *dest, char* v);
+void ta_push (struct tk_arr *dest, char* val, enum tk_type type);
 
-char* ta_get_val (struct tk_arr *dest, unsigned index);
+struct token ta_get_token (struct tk_arr *src, unsigned index);
+
+char* ta_get_val (struct tk_arr *src, unsigned index);
+
+enum tk_type ta_get_type (struct tk_arr *src, unsigned index);
 
 void ta_destroy (struct tk_arr *dest);
 

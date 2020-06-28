@@ -14,7 +14,7 @@ struct tk_arr ta_new ()
 	return res;
 }
 
-void ta_push (struct tk_arr *dest, char* v) /* , enum tk_type t) */
+void ta_push (struct tk_arr *dest, char* val , enum tk_type type)
 {
 	if (dest->len == 0)
 		dest->arr = malloc(sizeof(struct token));
@@ -23,20 +23,37 @@ void ta_push (struct tk_arr *dest, char* v) /* , enum tk_type t) */
 					  * sizeof(struct token));
 	
 	/* assuming sizeof(char) = 1 */
-	dest->arr[dest->len].val = malloc(strlen(v) + 1);
-	strcpy(dest->arr[dest->len].val, v);
-	/* TODO add types */
-	/* dest->arr[dest->len].type = t; */
+	dest->arr[dest->len].val = malloc(strlen(val) + 1);
+	strcpy(dest->arr[dest->len].val, val);
+	dest->arr[dest->len].type = type;
 
 	dest->len ++;
 }
 
-char* ta_get_val (struct tk_arr *dest, unsigned index)
+struct token ta_get_token (struct tk_arr *src, unsigned index)
 {
-	if (index >= dest->len || index < 0)
+	if (index >= src->len || index < 0) {
+		struct token null;
+		return null;
+	}
+	return src->arr[index];
+}
+
+char* ta_get_val (struct tk_arr *src, unsigned index)
+{
+	if (index >= src->len || index < 0)
 		return 0;
-	return dest->arr[index].val;
-};
+	return src->arr[index].val;
+}
+
+enum tk_type ta_get_type (struct tk_arr *src, unsigned index)
+{
+	if (index >= src->len || index < 0) {
+		enum tk_type null;
+		return null;
+	}
+	return src->arr[index].type;
+}
 
 void ta_destroy (struct tk_arr *dest)
 {
