@@ -24,7 +24,7 @@ void lexer (struct tk_arr *dest, char* input)
 
 	/*
 	 * checks left TODO:
-	 * 2, 3, 4 (wip), 5, 6 (wip)
+	 * 2, 3, 4 (wip), 5
 	 */
 	for (unsigned i = 0; !str_end; i++) {
 		/* DEBUG */

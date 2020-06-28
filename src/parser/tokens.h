@@ -8,8 +8,8 @@ enum tk_type
 
     NULL_TYPE, /* This is so that a type of 0 represents null */
 
-    TOKEN, /* Generic token type, before distinguishing token types */
     /* TODO consider renaming this, this could be misleading */
+    TOKEN, /* Generic token type, before distinguishing token types */
 
     /* The following are specified token types */
     WORD,
@@ -47,7 +47,7 @@ struct token
 
 } token;
 
-/* An array of... well... tokens */
+/* An array of tokens */
 struct tk_arr
 {
 	struct token* arr;
@@ -55,16 +55,22 @@ struct tk_arr
 
 } tk_arr;
 
+/* Initializes new tk_arr */
 struct tk_arr ta_new ();
 
+/* Pushes a new token onto dest */
 void ta_push (struct tk_arr *dest, char* val, enum tk_type type);
 
+/* Gets the token struct at index */
 struct token ta_get_token (struct tk_arr *src, unsigned index);
 
+/* Gets the string value of the token at index */
 char* ta_get_val (struct tk_arr *src, unsigned index);
 
+/* Gets the tk_type of the token at index */
 enum tk_type ta_get_type (struct tk_arr *src, unsigned index);
 
+/* Properly destroys and cleans up a tk_arr */
 void ta_destroy (struct tk_arr *dest);
 
 #endif
