@@ -33,8 +33,9 @@ void ta_push (struct tk_arr *dest, char* val , enum tk_type type)
 struct token ta_get_token (struct tk_arr *src, unsigned index)
 {
 	if (index >= src->len || index < 0) {
-		struct token null;
-		return null;
+		struct token null_token;
+		null_token.type = NULL_TYPE;
+		return null_token;
 	}
 	return src->arr[index];
 }
@@ -49,8 +50,8 @@ char* ta_get_val (struct tk_arr *src, unsigned index)
 enum tk_type ta_get_type (struct tk_arr *src, unsigned index)
 {
 	if (index >= src->len || index < 0) {
-		enum tk_type null;
-		return null;
+		enum tk_type null_type = NULL_TYPE;
+		return null_type;
 	}
 	return src->arr[index].type;
 }

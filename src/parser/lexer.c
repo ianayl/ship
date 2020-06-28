@@ -143,7 +143,6 @@ void lexer (struct tk_arr *dest, char* input)
 
 			/* &&, AND_IF */
 			if (input[i+1] == '&') {
-				/* TODO wait if this works I will be so mad */
 				ta_push(dest, "&&", OP_ANDIF);
 				i++;	
 
@@ -269,7 +268,7 @@ void lexer (struct tk_arr *dest, char* input)
 				ta_push(dest, "<", temp_type);
 			}
 
-		} else if (input[i] == '<') {
+		} else if (input[i] == '>') {
 
 			enum tk_type temp_type = TOKEN;
 
@@ -365,7 +364,7 @@ int main (int argc, char** argv)
 	struct tk_arr tokens = ta_new();
 	lexer(&tokens, argv[1]);
 	for (int i = 0; i<tokens.len; i++) {
-		printf("%s$\n", ta_get_val(&tokens, i));
+		printf("%s$ - %d\n", ta_get_val(&tokens, i), ta_get_type(&tokens, i));
 	}
 	ta_destroy(&tokens);
 }
