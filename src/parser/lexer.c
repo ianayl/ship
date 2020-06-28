@@ -27,6 +27,7 @@ void lexer (struct tk_arr *dest, char* input)
 	 * 2, 3, 4 (wip), 5, 6 (wip)
 	 */
 	for (unsigned i = 0; !str_end; i++) {
+		/* DEBUG */
 		printf("%c buf:%s\n", input[i], buf);
 
 		/* POSIX standard token recognition check 1 */
@@ -38,11 +39,8 @@ void lexer (struct tk_arr *dest, char* input)
 			 * TokenArr.
 			 */
 
-			if (buf_len > 1) {
-				/* assigning new token to a generic type */
-				enum tk_type generic_type = TOKEN;
-				ta_push(dest, buf, generic_type);
-			}
+			if (buf_len > 1)
+				ta_push(dest, buf, TOKEN);
 
 			str_end = 1;
 			break;
@@ -56,16 +54,11 @@ void lexer (struct tk_arr *dest, char* input)
 			 * TokenArr.
 			 */
 
-			enum tk_type temp_type = TOKEN;
-
-			if (buf_len > 1) {
-				/* assigning new token to a generic type */
-				ta_push(dest, buf, temp_type);
-			}
+			if (buf_len > 1)
+				ta_push(dest, buf, TOKEN);
 
 			/* push newline token */
-			temp_type = NEWLINE;
-			ta_push(dest, "\n", temp_type);
+			ta_push(dest, "\n", NEWLINE);
 
 			str_end = 1;
 			break;
@@ -73,8 +66,6 @@ void lexer (struct tk_arr *dest, char* input)
 		/* POSIX standard token recognition check 4 */
 		/* TODO implement backslash, escaping, etc  */
 		} else if (input[i] == '\"' || input[i] == '\'') {
-
-			enum tk_type generic_type = TOKEN;
 
 			if (in_quotes == input[i]) {
 
@@ -87,7 +78,7 @@ void lexer (struct tk_arr *dest, char* input)
 				 * TODO figure out what type would quoted text
 				 * fit under
 				 */
-				ta_push(dest, buf, generic_type);
+				ta_push(dest, buf, TOKEN);
 				free(buf);
 				buf = calloc(1, 1);
 				buf_len = 1;
@@ -100,7 +91,7 @@ void lexer (struct tk_arr *dest, char* input)
 				 * TODO figure out what type would quoted text
 				 * fit under
 				 */
-				ta_push(dest, buf, generic_type);
+				ta_push(dest, buf, TOKEN);
 				free(buf);
 
 				buf = calloc(2, 1);
@@ -126,14 +117,10 @@ void lexer (struct tk_arr *dest, char* input)
 			buf[buf_len-2] = input[i];
 
 		/* POSIX standard token recognition check 6 */
-		/* TODO fill in each operator lol */
 		} else if (input[i] == '&') {
 			
-			enum tk_type temp_type = TOKEN;
-
 			if (buf_len > 1) {
-				/* assigning new token to a generic type */
-				ta_push(dest, buf, temp_type);
+				ta_push(dest, buf, TOKEN);
 
 				free(buf);
 				buf = calloc(1, 1);
@@ -154,18 +141,13 @@ void lexer (struct tk_arr *dest, char* input)
 			 * name of something in an enum, so 'AMPERSAND' will
 			 * have to do.
 			 */
-			} else {
-				temp_type = OP_AMPERSAND;
-				ta_push(dest, "&", temp_type);
-			}
+			} else
+				ta_push(dest, "&", OP_AMPERSAND);
 
 		} else if (input[i] == '|') {
 
-			enum tk_type temp_type = TOKEN;
-
 			if (buf_len > 1) {
-				/* assigning new token to a generic type */
-				ta_push(dest, buf, temp_type);
+				ta_push(dest, buf, TOKEN);
 
 				free(buf);
 				buf = calloc(1, 1);
@@ -174,8 +156,7 @@ void lexer (struct tk_arr *dest, char* input)
 
 			/* ||, AND_OR */
 			if (input[i+1] == '|') {
-				temp_type = OP_ANDOR;
-				ta_push(dest, "||", temp_type);
+				ta_push(dest, "||", OP_ANDOR);
 				i++;	
 
 			/* |, PIPE */
@@ -184,18 +165,13 @@ void lexer (struct tk_arr *dest, char* input)
 			 * same reason as 'AMPERSAND', there's not much I can 
 			 * do franky... thank you POSIX standard, very cool.
 			 */
-			} else {
-				temp_type = OP_PIPE;
-				ta_push(dest, "|", temp_type);
-			}
+			} else
+				ta_push(dest, "|", OP_PIPE);
 
 		} else if (input[i] == ';') {
 
-			enum tk_type temp_type = TOKEN;
-
 			if (buf_len > 1) {
-				/* assigning new token to a generic type */
-				ta_push(dest, buf, temp_type);
+				ta_push(dest, buf, TOKEN);
 
 				free(buf);
 				buf = calloc(1, 1);
@@ -204,8 +180,7 @@ void lexer (struct tk_arr *dest, char* input)
 
 			/* ;;, DSEMI */
 			if (input[i+1] == ';') {
-				temp_type = OP_DSEMI;
-				ta_push(dest, ";;", temp_type);
+				ta_push(dest, ";;", OP_DSEMI);
 				i++;	
 
 			/* ;, SEMICOLON */
@@ -213,18 +188,13 @@ void lexer (struct tk_arr *dest, char* input)
 			 * again... see above comments for the rationale of
 			 * 'SEMICOLON' as the name...
 			 */
-			} else {
-				temp_type = OP_SEMICOLON;
-				ta_push(dest, ";", temp_type);
-			}
+			} else
+				ta_push(dest, ";", OP_SEMICOLON);
 
 		} else if (input[i] == '<') {
 
-			enum tk_type temp_type = TOKEN;
-
 			if (buf_len > 1) {
-				/* assigning new token to a generic type */
-				ta_push(dest, buf, temp_type);
+				ta_push(dest, buf, TOKEN);
 
 				free(buf);
 				buf = calloc(1, 1);
@@ -235,27 +205,23 @@ void lexer (struct tk_arr *dest, char* input)
 				
 				/* <<-, DLESSDASH */
 				if (input[i+2] == '-') {
-					temp_type = OP_DLESSDASH;
-					ta_push(dest, "<<-", temp_type);
+					ta_push(dest, "<<-", OP_DLESSDASH);
 					i = i+2;	
 
 				/* <<, DLESS */
 				} else {
-					temp_type = OP_DLESS;
-					ta_push(dest, "<<", temp_type);
+					ta_push(dest, "<<", OP_DLESS);
 					i++;	
 				}
 
 			/* <&, LESSAND */
 			} else if (input[i+1] == '&') {
-				temp_type = OP_LESSAND;
-				ta_push(dest, "<&", temp_type);
+				ta_push(dest, "<&", OP_LESSAND);
 				i++;	
 
 			/* <>, LESSGREAT */
 			} else if (input[i+1] == '>') {
-				temp_type = OP_LESSGREAT;
-				ta_push(dest, "<>", temp_type);
+				ta_push(dest, "<>", OP_LESSGREAT);
 				i++;	
 
 			/* <, LESS */
@@ -263,18 +229,13 @@ void lexer (struct tk_arr *dest, char* input)
 			 * same rationale as above comments, i just hope this 
 			 * name isnt confusing. 'LESSTHAN' is not better either
 			 */
-			} else {
-				temp_type = OP_LESS;
-				ta_push(dest, "<", temp_type);
-			}
+			} else
+				ta_push(dest, "<", OP_LESS);
 
 		} else if (input[i] == '>') {
 
-			enum tk_type temp_type = TOKEN;
-
 			if (buf_len > 1) {
-				/* assigning new token to a generic type */
-				ta_push(dest, buf, temp_type);
+				ta_push(dest, buf, TOKEN);
 
 				free(buf);
 				buf = calloc(1, 1);
@@ -283,28 +244,23 @@ void lexer (struct tk_arr *dest, char* input)
 
 			/* >|, CLOBBER */ 
 			if (input[i+1] == '|') {
-				temp_type = OP_CLOBBER;
-				ta_push(dest, ">|", temp_type);
+				ta_push(dest, ">|", OP_CLOBBER);
 				i++;	
 
 			/* >>, DGREAT */ 
 			} else if (input[i+1] == '>') {
-				temp_type = OP_DGREAT;
-				ta_push(dest, ">>", temp_type);
+				ta_push(dest, ">>", OP_DGREAT);
 				i++;	
 
 			/* >&, GREATAND */ 
 			} else if (input[i+1] == '&') {
-				temp_type = OP_GREATAND;
-				ta_push(dest, ">&", temp_type);
+				ta_push(dest, ">&", OP_GREATAND);
 				i++;	
 
 			/* >, GREAT */ 
 			/* see comments above */
-			} else {
-				temp_type = OP_GREAT;
-				ta_push(dest, ">", temp_type);
-			}
+			} else
+				ta_push(dest, ">", OP_GREAT);
 
 		/* POSIX standard token recognition check 7 */
 		} else if (input[i] == ' ' ||
@@ -315,8 +271,7 @@ void lexer (struct tk_arr *dest, char* input)
 			   input[i] == '\r' ) {
 
 			if (buf_len > 1) {
-				enum tk_type generic_type = TOKEN;
-				ta_push(dest, buf, generic_type);
+				ta_push(dest, buf, TOKEN);
 				free(buf);
 				buf = calloc(1, 1);
 				buf_len = 1;
@@ -326,8 +281,7 @@ void lexer (struct tk_arr *dest, char* input)
 		} else if (input[i] == '#') {
 
 			if (buf_len > 1) {
-				enum tk_type generic_type = TOKEN;
-				ta_push(dest, buf, generic_type);
+				ta_push(dest, buf, TOKEN);
 			}
 			/* 
 			 * TODO fix this, this is actually wrong behavior.

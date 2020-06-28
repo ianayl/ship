@@ -9,6 +9,7 @@ enum tk_type
     NULL_TYPE, /* This is so that a type of 0 represents null */
 
     TOKEN, /* Generic token type, before distinguishing token types */
+    /* TODO consider renaming this, this could be misleading */
 
     /* The following are specified token types */
     WORD,
