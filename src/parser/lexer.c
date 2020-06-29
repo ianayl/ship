@@ -5,9 +5,31 @@
 
 #include "tokens.h"
 
-/* 
- * Lexes a string into tokens and places them into a TokenArr
- */
+/* Helper function for lexer() to reset the dest. buffer */
+void buf_clear (char** dest, unsigned *dest_len)
+{
+	free(*dest);
+	*dest = calloc(1, 1);
+	*dest_len = 1;
+}
+
+	/* 
+	 * I don't think expanding size by 1
+	 * everytime is the best approach perf tho,
+	 * might want to optimize this 
+	 */
+
+/* Helper function for lexer() to append a char onto the dest. buffer */
+void buf_append_char (char** dest, unsigned *dest_len, char src)
+{
+	*dest_len = *dest_len + 1;
+	char* tmp = realloc(*dest, *dest_len);
+	tmp[*dest_len-1] = '\0';
+	tmp[*dest_len-2] = src;
+	*dest = tmp;
+}
+
+/* Lexes a string into tokens and places them into a tk_arr */
 void lexer (struct tk_arr *dest, char* input)
 {
 	unsigned short str_end = 0;
@@ -32,11 +54,10 @@ void lexer (struct tk_arr *dest, char* input)
 
 		/* POSIX standard token recognition check 1 */
 		if (input[i] == '\0' ) {
-
 			/* 
 			 * TODO if quotation is not finished, find
 			 * a way to indicate that in the returned 
-			 * TokenArr.
+			 * tk_arr.
 			 */
 
 			if (buf_len > 1)
@@ -47,11 +68,13 @@ void lexer (struct tk_arr *dest, char* input)
 
 		/* newlines are its own tokens */
 		} else if (input[i] == '\n') {
-
 			/* 
-			 * TODO if quotation is not finished, find
-			 * a way to indicate that in the returned 
-			 * TokenArr.
+			 * TODO if quotation is not finished, find a way to 
+			 * indicate that in the returned tk_arr.
+			 *
+			 * also TODO this is probably the wrong behavior, \n
+			 * is probably it's own thing but probably shouldn't
+			 * end intake at \n.
 			 */
 
 			if (buf_len > 1)
@@ -68,20 +91,13 @@ void lexer (struct tk_arr *dest, char* input)
 		} else if (input[i] == '\"' || input[i] == '\'') {
 
 			if (in_quotes == input[i]) {
-
-				buf_len ++;
-				buf = realloc(buf, buf_len);
-				buf[buf_len-1] = '\0';
-				buf[buf_len-2] = input[i];
-
+				buf_append_char(&buf, &buf_len, input[i]);
 				/* 
 				 * TODO figure out what type would quoted text
 				 * fit under
 				 */
 				ta_push(dest, buf, TOKEN);
-				free(buf);
-				buf = calloc(1, 1);
-				buf_len = 1;
+				buf_clear(&buf, &buf_len);
 
 				in_quotes = 0;
 
@@ -92,41 +108,25 @@ void lexer (struct tk_arr *dest, char* input)
 				 * fit under
 				 */
 				ta_push(dest, buf, TOKEN);
-				free(buf);
+				buf_clear(&buf, &buf_len);
 
-				buf = calloc(2, 1);
-				buf[0] = input[i];
-				buf_len = 2;
-
+				buf_append_char(&buf, &buf_len, input[i]);
 				in_quotes = input[i];
 				
-			} else {
+			} else
+				buf_append_char(&buf, &buf_len, input[i]);
 
-				buf_len ++;
-				buf = realloc(buf, buf_len);
-				buf[buf_len-1] = '\0';
-				buf[buf_len-2] = input[i];
-
-			}
-
-		} else if (in_quotes) {
-
-			buf_len ++;
-			buf = realloc(buf, buf_len);
-			buf[buf_len-1] = '\0';
-			buf[buf_len-2] = input[i];
+		/* dont check for operators or anything when in quotes */
+		} else if (in_quotes)
+			buf_append_char(&buf, &buf_len, input[i]);
 
 		/* POSIX standard token recognition check 6 */
-		} else if (input[i] == '&') {
+		else if (input[i] == '&') {
 			
 			if (buf_len > 1) {
 				ta_push(dest, buf, TOKEN);
-
-				free(buf);
-				buf = calloc(1, 1);
-				buf_len = 1;
+				buf_clear(&buf, &buf_len);
 			}
-
 
 			/* &&, AND_IF */
 			if (input[i+1] == '&') {
@@ -148,10 +148,7 @@ void lexer (struct tk_arr *dest, char* input)
 
 			if (buf_len > 1) {
 				ta_push(dest, buf, TOKEN);
-
-				free(buf);
-				buf = calloc(1, 1);
-				buf_len = 1;
+				buf_clear(&buf, &buf_len);
 			}
 
 			/* ||, AND_OR */
@@ -172,10 +169,7 @@ void lexer (struct tk_arr *dest, char* input)
 
 			if (buf_len > 1) {
 				ta_push(dest, buf, TOKEN);
-
-				free(buf);
-				buf = calloc(1, 1);
-				buf_len = 1;
+				buf_clear(&buf, &buf_len);
 			}
 
 			/* ;;, DSEMI */
@@ -195,10 +189,7 @@ void lexer (struct tk_arr *dest, char* input)
 
 			if (buf_len > 1) {
 				ta_push(dest, buf, TOKEN);
-
-				free(buf);
-				buf = calloc(1, 1);
-				buf_len = 1;
+				buf_clear(&buf, &buf_len);
 			}
 
 			if (input[i+1] == '<') {
@@ -236,10 +227,7 @@ void lexer (struct tk_arr *dest, char* input)
 
 			if (buf_len > 1) {
 				ta_push(dest, buf, TOKEN);
-
-				free(buf);
-				buf = calloc(1, 1);
-				buf_len = 1;
+				buf_clear(&buf, &buf_len);
 			}
 
 			/* >|, CLOBBER */ 
@@ -272,17 +260,14 @@ void lexer (struct tk_arr *dest, char* input)
 
 			if (buf_len > 1) {
 				ta_push(dest, buf, TOKEN);
-				free(buf);
-				buf = calloc(1, 1);
-				buf_len = 1;
+				buf_clear(&buf, &buf_len);
 			}
 
 		/* POSIX standard token recognition check 9 */
 		} else if (input[i] == '#') {
 
-			if (buf_len > 1) {
+			if (buf_len > 1)
 				ta_push(dest, buf, TOKEN);
-			}
 			/* 
 			 * TODO fix this, this is actually wrong behavior.
 			 * It should instead recognize the \n at the back 
@@ -291,17 +276,8 @@ void lexer (struct tk_arr *dest, char* input)
 			break;
 			
 		/* POSIX standard token recognition check 8 */
-		} else {
-			/* 
-			 * I don't think expanding size by 1
-			 * everytime is the best approach perf tho,
-			 * might want to optimize this 
-			 */
-			buf_len ++;
-			buf = realloc(buf, buf_len);
-			buf[buf_len-1] = '\0';
-			buf[buf_len-2] = input[i];
-		}
+		} else
+			buf_append_char(&buf, &buf_len, input[i]);
 	}
 
 	free(buf);
