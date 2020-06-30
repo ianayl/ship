@@ -1,19 +1,23 @@
-# Ship - SHell, but Interactive and Posix compliant this time.
+# Ship - SHell, Interactive and POSIX compliant
 
-Ship is an interactive shell that strives to be friendly, _somewhat_ fast and
-POSIX compliant for once.
+Ship is a 
+- a friendly interactive shell 
+- that's actually POSIX compliant for once.
+- it also (tries to be at least) not ridiculously slow...
 
 ## Massive Disclaimer:
 
-This shell is what I would call a "research" project. It's not "research" as 
-in breaking new grounds, its honestly just for me to learn how to make 
-languages and such. It's also in it's _extreme infant stages_, and I am a 
-beginner to programming and beginner to C, so bare with me here if I make 
-cringy mistakes. A bit of an ambitious project, but I'm hoping to bust my 
-legs into C with this project. 
+This shell is in an _extremely infant stages_ right now.
 
-Bit of a bad idea? Maybe, but whatever, I'm already here, so I might as well 
-continue it.
+This project is sort of just me learning about writing interpreters. I'm trying
+to make this something at least actually usuable as a daily shell, but it may
+take a while seeing that I am a beginner to C and that I suck at programming in
+general. I get that this is quite an ambitious project for someone who both 
+sucks at programming and sucks at C, but y'know what, I'm already here, I 
+started this and I plan on finishing it...
+
+So, this project might take some time before it's actually usuable... a _long
+time_ actually...
 
 ## Motivation
 
@@ -22,19 +26,28 @@ Take example:
 - Fish
 - Elvish
 
-I don't quite get it. I quite like having my interactive shell be POSIX 
-compliant. I know POSIX compliancy doesnt make for easy to use syntax, but it
-does make scripting POSIX stuff a lot easier in my opinion because you can test
-things by throwing it in your shell. Plus, POSIX compliancy also promises that
-your shell will work with practically any shell script, thus explaining why I 
-want a POSIX interactive shell.
+I don't quite get it. I get that POSIX is not very fun in terms of usability, 
+but I also think that forcing the user to
+- learn a new, bizarre syntax that the user will literally never use again 
+  anywhere outside of their interactive shell
+- having to translate already existing snippets of valid shell script or 
+  translating their current shell scripts to some bizarre syntax
 
-Now, Zsh does exist, but it doesn't have the nice things fish has without 
-plugins or OMZ. The plugins don't quite hit the same spot that the features
-built into Fish however though, and while OMZ is nice, it's _really slow_ 
-unfortunately. Hence I am going to learn how to program a shell just so I
-can have a comfy shell experience.
+is quite counterintuitive to the notion of a shell being "friendly". 
 
-### Small Sidenote
+I know, I know, Zsh and Zsh plugins exist. While Zsh has some pretty good 
+plugins, the reality is that Oh-My-Zsh is unbareably slow. Plus, their plugins
+just don't quite hit the same spot as something like Fish either, so here I am
+I guess, trying to program an interactive shell that's POSIX compliant for once
+but it also has "friendly" interactive features, such as
+- Fish-like autocomplete 
+  - Fish-like manpage completions 
+- Fish-like autosuggestions
+- Fish-like syntax heighlighting (yeahhhh I'm quite the fan of Fish...)
+- Zsh-like prompt configuration
+  - git prompt support built in
+- _some_ semblance of Bash compatibility
 
-Huh? Github, where did I use C++ anywhere?
+This might be a pipe dream though. I have quite the ways to go. As of right now
+_I need to at least have a working POSIX shell first_, so this might take a
+while...
