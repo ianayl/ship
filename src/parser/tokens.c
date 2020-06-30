@@ -10,6 +10,8 @@ struct tk_arr ta_new ()
 
 	res.len = 0;
 	res.arr = 0;
+	res.in_quotes = 0;
+	res.in_line_cont = 0;
 
 	return res;
 }
@@ -28,6 +30,12 @@ void ta_push (struct tk_arr *dest, char* val , enum tk_type type)
 	dest->arr[dest->len].type = type;
 
 	dest->len ++;
+}
+
+void ta_set_status (struct tk_arr *dest,
+		    unsigned short is_in_quotes)
+{
+	dest->in_quotes = is_in_quotes;
 }
 
 struct token ta_get_token (struct tk_arr *src, unsigned index)

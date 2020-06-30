@@ -52,6 +52,17 @@ struct tk_arr
 {
 	struct token* arr;
 	unsigned len;
+	/* 
+     * Was the lexer currently in quotes before the end of the input? 
+     *
+     * in_quotes can be either:
+     * - the value 0, indicating lexer is currently not in quotes
+     * - the ascii value of the quotes that the lexer is currently in
+     */
+    unsigned short in_quotes;
+
+    /* Was there a line continuation? */
+    unsigned short in_line_cont;
 
 } tk_arr;
 
@@ -60,6 +71,10 @@ struct tk_arr ta_new ();
 
 /* Pushes a new token onto dest */
 void ta_push (struct tk_arr *dest, char* val, enum tk_type type);
+
+/* Sets the status variables for dest. tk_arr */
+void ta_set_status (struct tk_arr *dest,
+                    unsigned short is_in_quotes);
 
 /* Gets the token struct at index */
 struct token ta_get_token (struct tk_arr *src, unsigned index);

@@ -1,4 +1,3 @@
-/* TODO PUT GENERIC, REPEATING PATTERNS INTO FUNCTIONS */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,15 +12,14 @@ void buf_clear (char** dest, unsigned *dest_len)
 	*dest_len = 1;
 }
 
+/* Helper function for lexer() to append a char onto the dest. buffer */
+void buf_append_char (char** dest, unsigned *dest_len, char src)
+{
 	/* 
 	 * I don't think expanding size by 1
 	 * everytime is the best approach perf tho,
 	 * might want to optimize this 
 	 */
-
-/* Helper function for lexer() to append a char onto the dest. buffer */
-void buf_append_char (char** dest, unsigned *dest_len, char src)
-{
 	*dest_len = *dest_len + 1;
 	char* tmp = realloc(*dest, *dest_len);
 	tmp[*dest_len-1] = '\0';
@@ -36,13 +34,17 @@ void lexer (struct tk_arr *dest, char* input)
 	char* buf = calloc(1, 1);
 	unsigned buf_len = 1;
 
-	/*
-	 * in_quotes has values of either:
-	 * - 0 for not in quotes
-	 * - the ascii value of the type of quote the lexer is 
-	 *   currently in
+	/* 
+	 * Is the lexer currently in quotes? 
+	 * See parser/tokens.h
 	 */
 	unsigned short in_quotes = 0;
+
+	/* Is the lexer currently in a comment? */
+	unsigned short in_comment = 0;
+	
+	/* Is the lexer currently escaping a character? */
+	unsigned short in_escape = 0;
 
 	/*
 	 * checks left TODO:
@@ -54,43 +56,48 @@ void lexer (struct tk_arr *dest, char* input)
 
 		/* POSIX standard token recognition check 1 */
 		if (input[i] == '\0' ) {
-			/* 
-			 * TODO if quotation is not finished, find
-			 * a way to indicate that in the returned 
-			 * tk_arr.
-			 */
 
 			if (buf_len > 1)
 				ta_push(dest, buf, TOKEN);
-
 			str_end = 1;
 			break;
+
+		/* if current character is to be escaped */
+		} else if (in_escape) {
+
+			/* 
+			 * Section 2.2.1, escaped newlines mean line cont.
+			 *
+			 * however, only do it for newlines at the end of the
+			 * input, or else in_line_cont would be true even if
+			 * it didn't need to be true
+			 */
+			if (input[i] == '\n' && input[i+1] == '\0')
+				dest->in_line_cont = 1;
+			else
+				buf_append_char(&buf, &buf_len, input[i]);
+			in_escape = 0;
 
 		/* newlines are its own tokens */
 		} else if (input[i] == '\n') {
-			/* 
-			 * TODO if quotation is not finished, find a way to 
-			 * indicate that in the returned tk_arr.
-			 *
-			 * also TODO this is probably the wrong behavior, \n
-			 * is probably it's own thing but probably shouldn't
-			 * end intake at \n.
-			 */
 
-			if (buf_len > 1)
+			if (buf_len > 1) {
 				ta_push(dest, buf, TOKEN);
-
-			/* push newline token */
+				buf_clear(&buf, &buf_len);
+			}
 			ta_push(dest, "\n", NEWLINE);
 
-			str_end = 1;
+		/* ignoring everything else if currently in a comment */
+		} else if (in_comment)
+			/* do nothing, the rest of the rules do not apply */
 			break;
 
 		/* POSIX standard token recognition check 4 */
-		/* TODO implement backslash, escaping, etc  */
-		} else if (input[i] == '\"' || input[i] == '\'') {
+		/* TODO sort out double quote behavior */
+		else if (input[i] == '\"' || input[i] == '\'') {
 
 			if (in_quotes == input[i]) {
+
 				buf_append_char(&buf, &buf_len, input[i]);
 				/* 
 				 * TODO figure out what type would quoted text
@@ -103,10 +110,6 @@ void lexer (struct tk_arr *dest, char* input)
 
 			} else if (!in_quotes) {
 
-				/*
-				 * TODO figure out what type would quoted text
-				 * fit under
-				 */
 				ta_push(dest, buf, TOKEN);
 				buf_clear(&buf, &buf_len);
 
@@ -119,6 +122,10 @@ void lexer (struct tk_arr *dest, char* input)
 		/* dont check for operators or anything when in quotes */
 		} else if (in_quotes)
 			buf_append_char(&buf, &buf_len, input[i]);
+		
+		/* escape next character */
+		else if (input[i] == '\\')
+			in_escape = 1;
 
 		/* POSIX standard token recognition check 6 */
 		else if (input[i] == '&') {
@@ -135,7 +142,7 @@ void lexer (struct tk_arr *dest, char* input)
 
 			/* &, AMPERSAND */
 			/* 
-			 * the name 'AMPERSAND' probably isn't convention, but 
+			 * The name 'AMPERSAND' probably isn't convention, but 
 			 * the only convention I could find for the name of '&'
 			 * was literally just '&', and I can't have '&' as the 
 			 * name of something in an enum, so 'AMPERSAND' will
@@ -158,7 +165,7 @@ void lexer (struct tk_arr *dest, char* input)
 
 			/* |, PIPE */
 			/* 
-			 * the name 'PIPE' probably isnt convention either, but
+			 * The name 'PIPE' probably isnt convention either, but
 			 * same reason as 'AMPERSAND', there's not much I can 
 			 * do franky... thank you POSIX standard, very cool.
 			 */
@@ -178,10 +185,7 @@ void lexer (struct tk_arr *dest, char* input)
 				i++;	
 
 			/* ;, SEMICOLON */
-			/*
-			 * again... see above comments for the rationale of
-			 * 'SEMICOLON' as the name...
-			 */
+			/* See above for rationale behind 'SEMICOLON' */
 			} else
 				ta_push(dest, ";", OP_SEMICOLON);
 
@@ -217,7 +221,7 @@ void lexer (struct tk_arr *dest, char* input)
 
 			/* <, LESS */
 			/* 
-			 * same rationale as above comments, i just hope this 
+			 * Same rationale as above comments, i just hope this 
 			 * name isnt confusing. 'LESSTHAN' is not better either
 			 */
 			} else
@@ -246,7 +250,7 @@ void lexer (struct tk_arr *dest, char* input)
 				i++;	
 
 			/* >, GREAT */ 
-			/* see comments above */
+			/* See above for rationale behind 'GREAT' */
 			} else
 				ta_push(dest, ">", OP_GREAT);
 
@@ -265,15 +269,9 @@ void lexer (struct tk_arr *dest, char* input)
 
 		/* POSIX standard token recognition check 9 */
 		} else if (input[i] == '#') {
-
 			if (buf_len > 1)
 				ta_push(dest, buf, TOKEN);
-			/* 
-			 * TODO fix this, this is actually wrong behavior.
-			 * It should instead recognize the \n at the back 
-			 */
-			str_end = 1;
-			break;
+			in_comment = 1;
 			
 		/* POSIX standard token recognition check 8 */
 		} else
@@ -281,6 +279,7 @@ void lexer (struct tk_arr *dest, char* input)
 	}
 
 	free(buf);
+	dest->in_quotes = in_quotes;
 }
 
 /* For debug only, delete when done */
@@ -296,5 +295,7 @@ int main (int argc, char** argv)
 	for (int i = 0; i<tokens.len; i++) {
 		printf("%s$ - %d\n", ta_get_val(&tokens, i), ta_get_type(&tokens, i));
 	}
+	printf("in_quotes: %d\n", tokens.in_quotes);
+	printf("in_line_cont: %d\n", tokens.in_line_cont);
 	ta_destroy(&tokens);
 }
