@@ -285,6 +285,7 @@ void lexer (struct tk_arr *dest, char* input)
 /* For debug only, delete when done */
 int main (int argc, char** argv)
 {
+	printf("ship\n");
 	if (argc < 2) {
 		printf("nothing to lex.\n");
 		return 1;
