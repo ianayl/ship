@@ -48,11 +48,16 @@ void lexer (struct tk_arr *dest, char* input)
 
 	/*
 	 * checks left TODO:
-	 * 2, 3, 4 (wip), 5
+	 * 4 (wip), 5
 	 */
 	for (unsigned i = 0; !str_end; i++) {
 		/* DEBUG */
-		printf("%c buf:%s\n", input[i], buf);
+		printf("%c buf:%s esc:%d quo:%d com:%d\n",
+		       input[i],
+		       buf,
+		       in_escape,
+		       in_quotes,
+		       in_comment);
 
 		/* POSIX standard token recognition check 1 */
 		if (input[i] == '\0' ) {
@@ -65,21 +70,50 @@ void lexer (struct tk_arr *dest, char* input)
 		/* if current character is to be escaped */
 		} else if (in_escape) {
 
-			/* 
-			 * Section 2.2.1, escaped newlines mean line cont.
-			 *
-			 * however, only do it for newlines at the end of the
-			 * input, or else in_line_cont would be true even if
-			 * it didn't need to be true
-			 */
-			if (input[i] == '\n' && input[i+1] == '\0')
-				dest->in_line_cont = 1;
-			else
-				buf_append_char(&buf, &buf_len, input[i]);
+			if (in_quotes == '\'')
+				/* don't care */
+				buf_append_char(&buf, &buf_len, '\\');
+
+			else if (in_quotes == '\"') {
+				/* 
+				 * Section 2.2.1, escaped newlines mean line cont.
+				 *
+				 * however, only do it for newlines at the end of the
+				 * input, or else in_line_cont would be true even if
+				 * it didn't need to be true
+				 */
+				if (input[i] == '\n' && input[i+1] == '\0')
+					dest->in_line_cont = 1;
+
+				else if (input[i] == '$' ||
+					 input[i] == '`' ||
+					 input[i] == '\"' ||
+					 input[i] == '\\')
+				{
+					/* escape needed for only these characters */
+					buf_append_char(&buf, &buf_len, input[i]);
+
+				} else {
+					/* adding the backslash back lol */
+					buf_append_char(&buf, &buf_len, '\\');
+					buf_append_char(&buf, &buf_len, input[i]);
+				}
+
+			} else {
+				/* Section 2.2.1, escaped newlines mean line cont. */
+				if (input[i] == '\n' && input[i+1] == '\0')
+					dest->in_line_cont = 1;
+				else
+					buf_append_char(&buf, &buf_len, input[i]);
+			}
 			in_escape = 0;
 
+		/* escape next character */
+		} else if (input[i] == '\\')
+			in_escape = 1;
+
 		/* newlines are its own tokens */
-		} else if (input[i] == '\n') {
+		else if (input[i] == '\n') {
 
 			if (buf_len > 1) {
 				ta_push(dest, buf, TOKEN);
@@ -87,14 +121,16 @@ void lexer (struct tk_arr *dest, char* input)
 			}
 			ta_push(dest, "\n", NEWLINE);
 
-		/* ignoring everything else if currently in a comment */
-		} else if (in_comment)
-			/* do nothing, the rest of the rules do not apply */
-			break;
+		} else if (in_comment) {
+
+			/*
+			 * it's a comment, do nothing. 
+			 * The rest of the rules do not apply
+			 */
 
 		/* POSIX standard token recognition check 4 */
 		/* TODO sort out double quote behavior */
-		else if (input[i] == '\"' || input[i] == '\'') {
+		} else if (input[i] == '\"' || input[i] == '\'') {
 
 			if (in_quotes == input[i]) {
 
@@ -123,10 +159,6 @@ void lexer (struct tk_arr *dest, char* input)
 		} else if (in_quotes)
 			buf_append_char(&buf, &buf_len, input[i]);
 		
-		/* escape next character */
-		else if (input[i] == '\\')
-			in_escape = 1;
-
 		/* POSIX standard token recognition check 6 */
 		else if (input[i] == '&') {
 			
@@ -260,8 +292,8 @@ void lexer (struct tk_arr *dest, char* input)
 			   input[i] == '\n' ||
 			   input[i] == '\v' ||
 			   input[i] == '\f' ||
-			   input[i] == '\r' ) {
-
+			   input[i] == '\r' )
+		{
 			if (buf_len > 1) {
 				ta_push(dest, buf, TOKEN);
 				buf_clear(&buf, &buf_len);
