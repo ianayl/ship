@@ -47,8 +47,20 @@ void lexer (struct tk_arr *dest, char* input)
 	unsigned short in_escape = 0;
 
 	/*
-	 * checks left TODO:
-	 * 4 (wip), 5
+	 * Is the lexer currently in command substitution? 
+	 * See parser/tokens.h
+	 */
+	unsigned short in_sub_cmd = 0;
+
+	/* Is the lexer currently in arithmetic expansion? */
+	unsigned short in_exp_arith = 0;
+
+	/* Is the lexer currently in parameter expansion? */
+	unsigned short in_exp_param = 0;
+
+	/*
+	 * Checks left TODO:
+	 * 5
 	 */
 	for (unsigned i = 0; !str_end; i++) {
 		/* DEBUG */
@@ -67,18 +79,18 @@ void lexer (struct tk_arr *dest, char* input)
 			str_end = 1;
 			break;
 
-		/* if current character is to be escaped */
+		/* If current character is to be escaped */
 		} else if (in_escape) {
 
 			if (in_quotes == '\'')
-				/* don't care */
+				/* Don't care */
 				buf_append_char(&buf, &buf_len, '\\');
 
 			else if (in_quotes == '\"') {
 				/* 
 				 * Section 2.2.1, escaped newlines mean line cont.
 				 *
-				 * however, only do it for newlines at the end of the
+				 * However, only do it for newlines at the end of the
 				 * input, or else in_line_cont would be true even if
 				 * it didn't need to be true
 				 */
@@ -90,11 +102,11 @@ void lexer (struct tk_arr *dest, char* input)
 					 input[i] == '\"' ||
 					 input[i] == '\\')
 				{
-					/* escape needed for only these characters */
+					/* Escape needed for only these characters */
 					buf_append_char(&buf, &buf_len, input[i]);
 
 				} else {
-					/* adding the backslash back lol */
+					/* Adding the backslash back lol */
 					buf_append_char(&buf, &buf_len, '\\');
 					buf_append_char(&buf, &buf_len, input[i]);
 				}
@@ -108,11 +120,11 @@ void lexer (struct tk_arr *dest, char* input)
 			}
 			in_escape = 0;
 
-		/* escape next character */
+		/* Escape next character */
 		} else if (input[i] == '\\')
 			in_escape = 1;
 
-		/* newlines are its own tokens */
+		/* Newlines are its own tokens */
 		else if (input[i] == '\n') {
 
 			if (buf_len > 1) {
@@ -124,12 +136,11 @@ void lexer (struct tk_arr *dest, char* input)
 		} else if (in_comment) {
 
 			/*
-			 * it's a comment, do nothing. 
+			 * It's a comment, do nothing. 
 			 * The rest of the rules do not apply
 			 */
 
 		/* POSIX standard token recognition check 4 */
-		/* TODO sort out double quote behavior */
 		} else if (input[i] == '\"' || input[i] == '\'') {
 
 			if (in_quotes == input[i]) {
@@ -144,10 +155,14 @@ void lexer (struct tk_arr *dest, char* input)
 
 				in_quotes = 0;
 
-			} else if (!in_quotes) {
-
-				ta_push(dest, buf, TOKEN);
-				buf_clear(&buf, &buf_len);
+			/* If quotation mark is not nested in anything */
+			} else if (!in_quotes &&
+				   !in_sub_cmd)
+			{
+				if (buf_len > 1) {
+					ta_push(dest, buf, TOKEN);
+					buf_clear(&buf, &buf_len);
+				}
 
 				buf_append_char(&buf, &buf_len, input[i]);
 				in_quotes = input[i];
@@ -155,8 +170,33 @@ void lexer (struct tk_arr *dest, char* input)
 			} else
 				buf_append_char(&buf, &buf_len, input[i]);
 
-		/* dont check for operators or anything when in quotes */
+		/* Don't check for operators or anything when in quotes */
 		} else if (in_quotes)
+			buf_append_char(&buf, &buf_len, input[i]);
+
+		/* POSIX standard token recognition check 5 */
+		else if (input[i] == '`') {
+
+			if (in_sub_cmd == '`') {
+
+				buf_append_char(&buf, &buf_len, input[i]);
+				ta_push(dest, buf, SUB_CMD);
+				buf_clear(&buf, &buf_len);
+
+				in_sub_cmd = 0;
+
+			} else {
+
+				if (buf_len > 1) {
+					ta_push(dest, buf, TOKEN);
+					buf_clear(&buf, &buf_len);
+				}
+
+				buf_append_char(&buf, &buf_len, input[i]);
+				in_sub_cmd = '`';
+			}
+
+		} else if (in_sub_cmd)
 			buf_append_char(&buf, &buf_len, input[i]);
 		
 		/* POSIX standard token recognition check 6 */
@@ -311,7 +351,11 @@ void lexer (struct tk_arr *dest, char* input)
 	}
 
 	free(buf);
+	/* syncing status of lexer with tk_arr */
 	dest->in_quotes = in_quotes;
+	dest->in_sub_cmd = in_sub_cmd;
+	dest->in_exp_arith = in_exp_arith;
+	dest->in_exp_param = in_exp_param;
 }
 
 /* For debug only, delete when done */

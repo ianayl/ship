@@ -11,6 +11,9 @@ struct tk_arr ta_new ()
 	res.len = 0;
 	res.arr = 0;
 	res.in_quotes = 0;
+	res.in_sub_cmd = 0;
+	res.in_exp_arith = 0;
+	res.in_exp_param = 0;
 	res.in_line_cont = 0;
 
 	return res;

@@ -8,8 +8,12 @@ enum tk_type
 
     NULL_TYPE, /* This is so that a type of 0 represents null */
 
-    /* TODO consider renaming this, this could be misleading */
+    /* The following needs to be processed again depending on type */
     TOKEN, /* Generic token type, before distinguishing token types */
+    EXP_PARAM, /* Parameter expansion (variables basically) */
+    EXP_ARITH, /* Arithmetic expansion (math) */
+    SUB_CMD, /* Command substitution (subshell) */
+
 
     /* The following are specified token types */
     WORD,
@@ -53,16 +57,35 @@ struct tk_arr
 	struct token* arr;
 	unsigned len;
 	/* 
-     * Was the lexer currently in quotes before the end of the input? 
+     * Was the lexer in quotes before the end of the input? 
      *
      * in_quotes can be either:
-     * - the value 0, indicating lexer is currently not in quotes
-     * - the ascii value of the quotes that the lexer is currently in
+     * - The value 0, indicating that the lexer is currently not in quotes
+     * - The ascii value of the quotes that the lexer is currently in
+     *   - eg. 34 for '\"', 44 for '\''
      */
     unsigned short in_quotes;
 
     /* Was there a line continuation? */
     unsigned short in_line_cont;
+
+    /*
+     * Was the lexer in command substitution before the end of the input? 
+     *
+     * in_sub_cmd can be either:
+     * - The value of, indicating that the lexer is currently not in command
+     *   substitution
+     * - The ascii value of the beginning sequence that started the command 
+     *   substitution
+     *   - eg. 36 for '$', 96 for '`'
+     */
+	unsigned short in_sub_cmd;
+
+    /* Was the lexer in arithmetic expansion before the end of input? */
+	unsigned short in_exp_arith;
+
+    /* Was the lexer in parameter expansion before the end of input? */
+	unsigned short in_exp_param;
 
 } tk_arr;
 
