@@ -196,6 +196,31 @@ void lexer (struct tk_arr *dest, char* input)
 				in_sub_cmd = '`';
 			}
 
+		} else if (input[i] == '$') {
+			/* TODO finish this */
+
+			if (input[i+1] == '(') {
+
+				if (input[i+2] == '(') {
+
+					/* Arithmetic Expansion */
+
+				} else {
+
+					/* Command Substitution */
+
+				}
+
+			} else if (input[i+1] == '{') {
+
+				/* Parameter Expansion */
+
+			} else {
+
+				/* Still Parameter Expansion... */
+
+			}
+
 		} else if (in_sub_cmd)
 			buf_append_char(&buf, &buf_len, input[i]);
 		
