@@ -58,6 +58,9 @@ void lexer (struct tk_arr *dest, char* input)
 	/* Is the lexer currently in parameter expansion? */
 	unsigned short in_exp_param = 0;
 
+	/* The level of nesting the current substitution / expansion */
+	int nest_lvl = 0;
+
 	/*
 	 * Checks left TODO:
 	 * 5
@@ -174,57 +177,109 @@ void lexer (struct tk_arr *dest, char* input)
 		} else if (in_quotes)
 			buf_append_char(&buf, &buf_len, input[i]);
 
-		/* POSIX standard token recognition check 5 */
-		else if (input[i] == '`') {
+		// /*
+		//  * POSIX standard token recognition check 5 */
+		//  * 
+		//  * TODO checklist:
+		//  * - Be able to process commands first
+		//  *   - Be able to parse individual components, eg exp_arith
+		//  *     or quotes or sub_cmd
+		//  *   - AST the results (DO THIS FIRST)
+		//  *   - The new AST tree is then processed
+		//  *   - Return results
+		//  * 
+		//  * It would probably be a wise idea to:
+		//  * - Develop arithmetic expansion first (DO THIS FIRST)
+		//  *   - Make a separate function that takes text
+		//  *   - Text is then lexed separately
+		//  *     - Stuff like exp_arith and exp_param nested in the
+		//  *       initial exp_arith should be handled here (do this
+		//  *       later though)
+		//  *   - Results are then put in it's own AST
+		//  *   - AST'd results are processed
+		//  *   - Return results
+		//  * - Then handle parameter expansion
+		//  * - And then follow up by handling subshells. If you are 
+		//  *   able to get this far then you have some semblance of
+		//  *   a shell, just implement stuff like:
+		//  *    - Conditional structures
+		//  *    - Redirection
+		//  *    - Exit status
+		//  *    - Heredocs
+		//  *    - Builtins
+		//  */
+		// else if (input[i] == '`') {
 
-			if (in_sub_cmd == '`') {
+		// 	if (in_sub_cmd == '`') {
+		// 		/* Old command substitution */
+		// 		buf_append_char(&buf, &buf_len, input[i]);
+		// 		ta_push(dest, buf, SUB_CMD);
+		// 		buf_clear(&buf, &buf_len);
 
-				buf_append_char(&buf, &buf_len, input[i]);
-				ta_push(dest, buf, SUB_CMD);
-				buf_clear(&buf, &buf_len);
+		// 		in_sub_cmd = 0;
 
-				in_sub_cmd = 0;
+		// 	} else {
+		// 		/* New command substitution */
+		// 		if (buf_len > 1) {
+		// 			ta_push(dest, buf, TOKEN);
+		// 			buf_clear(&buf, &buf_len);
+		// 		}
 
-			} else {
+		// 		buf_append_char(&buf, &buf_len, input[i]);
+		// 		in_sub_cmd = '`';
+		// 	}
 
-				if (buf_len > 1) {
-					ta_push(dest, buf, TOKEN);
-					buf_clear(&buf, &buf_len);
-				}
+		// } else if (in_sub_cmd) {
 
-				buf_append_char(&buf, &buf_len, input[i]);
-				in_sub_cmd = '`';
-			}
+		// 	buf_append_char(&buf, &buf_len, input[i]);
 
-		} else if (input[i] == '$') {
-			/* TODO finish this */
+		// 	if (input[i] == ')') {
+		// 	}
 
-			if (input[i+1] == '(') {
 
-				if (input[i+2] == '(') {
+		// } else if (input[i] == '$') {
 
-					/* Arithmetic Expansion */
+		// 	if (buf_len > 1) {
+		// 		ta_push(dest, buf, TOKEN);
+		// 		buf_clear(&buf, &buf_len);
+		// 	}
 
-				} else {
+		// 	if (input[i+1] == '(') {
 
-					/* Command Substitution */
+		// 		if (input[i+2] == '(') {
+		// 			/* Arithmetic Expansion */
+		// 			buf_append_char(&buf,
+		// 					&buf_len,
+		// 					input[i]);
+		// 			in_exp_arith = 1;
 
-				}
+		// 		} else {
+		// 			/* Command Substitution */
+		// 			buf_append_char(&buf,
+		// 					&buf_len,
+		// 					input[i]);
+		// 			in_sub_cmd = '$';
+		// 		}
 
-			} else if (input[i+1] == '{') {
+		// 	} else if (input[i+1] == '{') {
+		// 		/* Parameter Expansion */
+		// 		buf_append_char(&buf, &buf_len, '{');
+		// 		in_exp_param = '{';
 
-				/* Parameter Expansion */
+		// 	} else if (!in_sub_cmd &&
+		// 		   !in_exp_arith &&
+		// 		   !in_exp_param)
+		// 	{
+		// 		/* Still Parameter Expansion... but no {} */
+		// 		buf_append_char(&buf, &buf_len, input[i]);
+		// 		in_exp_param = '$';
 
-			} else {
+		// 	} else
+		// 		/* No new tokens, just append onto current token */
+		// 		buf_append_char(&buf, &buf_len, input[i]);
 
-				/* Still Parameter Expansion... */
-
-			}
-
-		} else if (in_sub_cmd)
-			buf_append_char(&buf, &buf_len, input[i]);
-		
 		/* POSIX standard token recognition check 6 */
+		// } else if (input[i] == '&') {
 		else if (input[i] == '&') {
 			
 			if (buf_len > 1) {
